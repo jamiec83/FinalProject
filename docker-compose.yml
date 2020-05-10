@@ -15,6 +15,5 @@ services:
       - "32000:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mlb
     volumes:
       - ./db:/docker-entrypoint-initdb.d/:ro
