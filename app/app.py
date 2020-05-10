@@ -12,7 +12,7 @@ app.config['MYSQL_DATABASE_HOST'] = 'db'
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
 app.config['MYSQL_DATABASE_PORT'] = 3306
-app.config['MYSQL_DATABASE_DB'] = 'MLBData'
+app.config['MYSQL_DATABASE_DB'] = 'mlb'
 mysql.init_app(app)
 
 
@@ -28,7 +28,7 @@ def index():
 @app.route('/view/<int:player_id>', methods=['GET'])
 def record_view(player_id):
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM tblMLBImport WHERE id=%s', player_id)
+    cursor.execute('SELECT * FROM mlb_players WHERE id=%s', player_id)
     result = cursor.fetchall()
     return render_template('view.html', title='View Form', player=result[0])
 
@@ -36,7 +36,7 @@ def record_view(player_id):
 @app.route('/edit/<int:player_id>', methods=['GET'])
 def form_edit_get(player_id):
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM tblMLBImport WHERE id=%s', player_id)
+    cursor.execute('SELECT * FROM mlb_players WHERE id=%s', player_id)
     result = cursor.fetchall()
     return render_template('edit.html', title='Edit Form', player=result[0])
 
@@ -47,7 +47,7 @@ def form_update_post(player_id):
     inputData = (request.form.get('Name'), request.form.get('Team'), request.form.get('Position'),
                  request.form.get('Height_inches'), request.form.get('Weight_lbs'),
                  request.form.get('Age'),  player_id)
-    sql_update_query = """UPDATE tblMLBImport t SET t.Name = %s, t.Team = %s, t.Position = %s, t.Height_inches = 
+    sql_update_query = """UPDATE mlb_players t SET t.Name = %s, t.Team = %s, t.Position = %s, t.Height_inches = 
     %s, t.Weight_lbs = %s, t.Age = %s WHERE t.id = %s """
     cursor.execute(sql_update_query, inputData)
     mysql.get_db().commit()
@@ -64,7 +64,7 @@ def form_insert_post():
     inputData = (request.form.get('Name'), request.form.get('Team'), request.form.get('Position'),
                  request.form.get('Height_inches'), request.form.get('Weight_lbs'),
                  request.form.get('Age'), )
-    sql_insert_query = """INSERT INTO tblMLBImport (Name,Team,Position,Height_inches,Weight_lbs,Age) VALUES (%s, %s,%s, %s,%s, %s,%s) """
+    sql_insert_query = """INSERT INTO mlb_players (Name,Team,Position,Height_inches,Weight_lbs,Age) VALUES (%s, %s,%s, %s,%s, %s,%s) """
     cursor.execute(sql_insert_query, inputData)
     mysql.get_db().commit()
     return redirect("/", code=302)
@@ -72,7 +72,7 @@ def form_insert_post():
 @app.route('/delete/<int:player_id>', methods=['POST'])
 def form_delete_post(player_id):
     cursor = mysql.get_db().cursor()
-    sql_delete_query = """DELETE FROM tblMLBImport WHERE id = %s """
+    sql_delete_query = """DELETE FROM mlb_players WHERE id = %s """
     cursor.execute(sql_delete_query, player_id)
     mysql.get_db().commit()
     return redirect("/", code=302)
@@ -81,7 +81,7 @@ def form_delete_post(player_id):
 @app.route('/api/v1/players', methods=['GET'])
 def api_browse() -> str:
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM tblMLBImport')
+    cursor.execute('SELECT * FROM mlb_players')
     result = cursor.fetchall()
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
@@ -91,7 +91,7 @@ def api_browse() -> str:
 @app.route('/api/v1/players/<int:player_id>', methods=['GET'])
 def api_retrieve(player_id) -> str:
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM tblMLBImport WHERE id=%s', player_id)
+    cursor.execute('SELECT * FROM mlb_players WHERE id=%s', player_id)
     result = cursor.fetchall()
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
